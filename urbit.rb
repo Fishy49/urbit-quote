@@ -34,6 +34,8 @@ URBIT_URLS = [
   "https://urbit.org/docs/hoon/hoon-school/list-of-numbers/"
 ]
 
+LINK_REGEXP = /(\[([a-z|\s]+)\]\(\/[\S]+\))/
+
 get "/quote" do
   raw_html = HTTParty.get(URBIT_URLS.sample).body
   doc = Nokogiri::HTML(raw_html)
@@ -44,5 +46,13 @@ get "/quote" do
 
   paragraph_html = paragraphs.sample.to_html
 
-  ReverseMarkdown.convert paragraph_html
+  markdown = ReverseMarkdown.convert(paragraph_html)
+  
+  # strip links
+  matches = markdown.scan(LINK_REGEXP)
+  matches.each do |match|
+    markdown = markdown.gsub(match[0], "`#{match[1]}`")
+  end
+
+  markdown
 end
