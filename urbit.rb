@@ -33,7 +33,7 @@ get "/quote" do
   doc = Nokogiri::HTML(raw_html)
 
   paragraphs = doc.css('article p').map do |paragraph|
-    paragraph if paragraph.to_html.length > 250
+    paragraph if !paragraph.to_html.include?("<svg") && paragraph.to_html.length > 250
   end.compact
 
   paragraph_html = paragraphs.sample.to_html
