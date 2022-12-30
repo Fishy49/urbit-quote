@@ -33,17 +33,21 @@ get "/quote" do
   doc = Nokogiri::HTML(raw_html)
 
   paragraphs = doc.css('article p').map do |paragraph|
-    paragraph if !paragraph.to_html.include?("<svg") && paragraph.to_html.length > 250
+    paragraph if !paragraph.nil? && !paragraph.to_html.strip == "" && !paragraph.to_html.include?("<svg") && paragraph.to_html.length > 250
   end.compact
 
-  paragraph_html = paragraphs.sample.to_html
+  paragraph_html = paragraphs.sample&.to_html
 
-  markdown = ReverseMarkdown.convert(paragraph_html)
-  
-  # strip links
-  matches = markdown.scan(LINK_REGEXP)
-  matches.each do |match|
-    markdown = markdown.gsub(match[0], "`#{match[1]}`")
+  if paragraph_html.nil?
+    markdown = "nuthin here - must've been the wind"
+  else
+    markdown = ReverseMarkdown.convert(paragraph_html)
+    
+    # strip links
+    matches = markdown.scan(LINK_REGEXP)
+    matches.each do |match|
+      markdown = markdown.gsub(match[0], "`#{match[1]}`")
+    end
   end
 
   markdown
