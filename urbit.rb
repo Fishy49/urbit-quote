@@ -28,6 +28,10 @@ URBIT_URLS = [
 
 LINK_REGEXP = /(\[([a-z|\s]+)\]\(\/[\S]+\))/
 
+get "/" do
+  redirect "/quote"
+end
+
 get "/quote" do
   raw_html = HTTParty.get(URBIT_URLS.sample).body
   doc = Nokogiri::HTML(raw_html)
